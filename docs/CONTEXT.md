@@ -12,6 +12,18 @@ This file defines domain terms used across specs, tickets, docs, tests, and code
 
 **Session**: The server-side scope that connects a browser/user to repos, chats, and temporary or persistent data.
 
+**Guest Session**: A session for a Guest User. It is temporary and expires with the browser session or after 24 hours, whichever comes first.
+
+**Logged-In Session**: A session for a Logged-In User. It is persistent across browser restarts until it expires or the user logs out.
+
+**OAuth State**: A short-lived value tied to a Session during GitHub OAuth login to verify that the callback belongs to the browser that started the login.
+
+**CSRF Token**: A token tied to a Session that the frontend sends with state-changing requests so cookie-authenticated requests cannot be forged by another site.
+
+**Guest Data Warning**: A warning shown before a Guest User submits repository work, explaining that guest-created data is temporary and will be lost if the user logs in.
+
+**Account Deletion**: The operation where a Logged-In User permanently deletes their account and all user-owned data, including repositories, chats, indexes, embeddings, symbols, references, skipped files, and active Sessions.
+
 ## Repository Concepts
 
 **Repository**: A GitHub repository submitted by a user for indexing.
