@@ -33,4 +33,5 @@ repos/
 .idea/
 .vscode/
 
-.yarn/install-state.gz
+backend/.yarn/install-state.gz
+frontend/.yarn/install-state.gz
