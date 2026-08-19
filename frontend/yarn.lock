@@ -443,6 +443,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fontsource/ibm-plex-mono@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "@fontsource/ibm-plex-mono@npm:5.3.0"
+  checksum: 10c0/4aaf5a3c9efc7c32de4fa46ff3187ac63720904beab825f331ac01800038899761da23270f09d3fb5cff22f7cdc366904834854e2107229ad60833bba71c223d
+  languageName: node
+  linkType: hard
+
+"@fontsource/press-start-2p@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "@fontsource/press-start-2p@npm:5.3.0"
+  checksum: 10c0/019fae05e17f07e7eb67d03c28a939b756f00cc9dfe74ee395c70c1c3840802a72f698be056fd7a1aa0c3ce9f4cd70ecf07a211c2c8fb546acb9098c0c3cd3dd
+  languageName: node
+  linkType: hard
+
 "@isaacs/fs-minipass@npm:^4.0.0":
   version: 4.0.1
   resolution: "@isaacs/fs-minipass@npm:4.0.1"
@@ -995,6 +1009,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "ask-repo-frontend@workspace:."
   dependencies:
+    "@fontsource/ibm-plex-mono": "npm:^5.3.0"
+    "@fontsource/press-start-2p": "npm:^5.3.0"
     "@tanstack/react-query": "npm:^5.59.0"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/jest-dom": "npm:^6.6.0"
@@ -1003,15 +1019,18 @@ __metadata:
     "@types/react": "npm:^18.3.11"
     "@types/react-dom": "npm:^18.3.1"
     "@vitejs/plugin-react": "npm:^4.3.3"
+    autoprefixer: "npm:^10.5.4"
     class-variance-authority: "npm:^0.7.0"
     clsx: "npm:^2.1.1"
     jsdom: "npm:^25.0.1"
     lucide-react: "npm:^0.453.0"
+    postcss: "npm:^8.5.26"
     prettier: "npm:^3.6.2"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
     react-router-dom: "npm:^6.27.0"
     tailwind-merge: "npm:^2.5.4"
+    tailwindcss: "npm:^4.3.3"
     typescript: "npm:^5.6.3"
     vite: "npm:^5.4.9"
     vitest: "npm:^2.1.3"
@@ -1046,6 +1065,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"autoprefixer@npm:^10.5.4":
+  version: 10.5.4
+  resolution: "autoprefixer@npm:10.5.4"
+  dependencies:
+    browserslist: "npm:^4.28.6"
+    caniuse-lite: "npm:^1.0.30001806"
+    fraction.js: "npm:^5.3.4"
+    picocolors: "npm:^1.1.1"
+    postcss-value-parser: "npm:^4.2.0"
+  peerDependencies:
+    postcss: ^8.1.0
+  bin:
+    autoprefixer: bin/autoprefixer
+  checksum: 10c0/274ebc9fa50ac0d7a5aa9bc29baa502f2d2006f47a899dac2de4ba86c989defaa62b096e68692e15d53c9ed2b62c57dd047ceba61d344908d8b6e61f220a10e8
+  languageName: node
+  linkType: hard
+
 "baseline-browser-mapping@npm:^2.11.12":
   version: 2.11.14
   resolution: "baseline-browser-mapping@npm:2.11.14"
@@ -1055,7 +1091,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist@npm:^4.24.0":
+"browserslist@npm:^4.24.0, browserslist@npm:^4.28.6":
   version: 4.28.8
   resolution: "browserslist@npm:4.28.8"
   dependencies:
@@ -1087,7 +1123,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30001809":
+"caniuse-lite@npm:^1.0.30001806, caniuse-lite@npm:^1.0.30001809":
   version: 1.0.30001809
   resolution: "caniuse-lite@npm:1.0.30001809"
   checksum: 10c0/cac2ed4e66cc6c4cbf126b94d2c02012566eb92f93c89949290f99edcd2bdc4ed1290b5c537ccb9b42c773936a479ed468e5d4e9b8938b126a0947090e42e008
@@ -1447,6 +1483,13 @@ __metadata:
     hasown: "npm:^2.0.4"
     mime-types: "npm:^2.1.35"
   checksum: 10c0/43947a77bf0ff45c6ceed789778982d47a3f3e720a74b71721174ebf3310a5f1a8be1d6b38a3ee3688e8a18a2c4273073ec0844cd37efda3eaf46d41c9c318ff
+  languageName: node
+  linkType: hard
+
+"fraction.js@npm:^5.3.4":
+  version: 5.3.4
+  resolution: "fraction.js@npm:5.3.4"
+  checksum: 10c0/f90079fe9bfc665e0a07079938e8ff71115bce9462f17b32fc283f163b0540ec34dc33df8ed41bb56f028316b04361b9a9995b9ee9258617f8338e0b05c5f95a
   languageName: node
   linkType: hard
 
@@ -1883,7 +1926,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.43":
+"postcss-value-parser@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "postcss-value-parser@npm:4.2.0"
+  checksum: 10c0/f4142a4f56565f77c1831168e04e3effd9ffcc5aebaf0f538eee4b2d465adfd4b85a44257bb48418202a63806a7da7fe9f56c330aebb3cac898e46b4cbf49161
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.4.43, postcss@npm:^8.5.26":
   version: 8.5.26
   resolution: "postcss@npm:8.5.26"
   dependencies:
@@ -2195,6 +2245,13 @@ __metadata:
   version: 2.6.1
   resolution: "tailwind-merge@npm:2.6.1"
   checksum: 10c0/f9b5d7ba37f6c6dc7bb7a090f08252e8d827b5abfc1031bf468c5274ce104409e7952a0075a3e009aab53adda8c6d133bc1dd9d3427e2ae5bc00306f9ce1fbff
+  languageName: node
+  linkType: hard
+
+"tailwindcss@npm:^4.3.3":
+  version: 4.3.3
+  resolution: "tailwindcss@npm:4.3.3"
+  checksum: 10c0/7e9cd7553cd890ffa5350efb0ca8971ba5435257d0f98bf0714994ac8f1fee5c7cdf9a9da47fe83e8ac995d728410837ac49d3ef5ea66b5afe1db312086ffae2
   languageName: node
   linkType: hard
 
