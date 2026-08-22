@@ -36,3 +36,5 @@ repos/
 
 backend/.yarn/install-state.gz
 frontend/.yarn/install-state.gz
+
+scripts/
