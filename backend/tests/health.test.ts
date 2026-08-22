@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
-import { createApp } from '../src/app.js';
-import { loadConfig } from '../src/config.js';
+import { createApp, loadConfig } from '../src/index.js';
 
 describe('Backend Health & Readiness', () => {
   const validEnv = {
@@ -69,7 +68,7 @@ describe('Backend Health & Readiness', () => {
     expect(() =>
       loadConfig({
         DATABASE_URL: 'not-a-url',
-      })
+      }),
     ).toThrow('Invalid environment configuration');
   });
 

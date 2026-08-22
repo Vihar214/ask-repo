@@ -2,8 +2,8 @@ import { Express, Request, Response } from 'express';
 import { sql } from 'kysely';
 
 import { Config } from '../../config.js';
-import { createDb } from '../../db/client.js';
-import { createRedisClient } from '../../queues/redis.js';
+import { createDb } from '../../db/index.js';
+import { createRedisClient } from '../../queues/index.js';
 
 export interface HealthChecks {
   checkPostgres: () => Promise<boolean>;
@@ -50,7 +50,11 @@ function createDefaultHealthChecks(config: Config): HealthChecks {
   };
 }
 
-export function registerHealthRoutes(app: Express, config: Config, healthChecks = createDefaultHealthChecks(config)) {
+export function registerHealthRoutes(
+  app: Express,
+  config: Config,
+  healthChecks = createDefaultHealthChecks(config),
+) {
   app.get('/health', (_req: Request, res: Response) => {
     res.status(200).json({ status: 'ok' });
   });

@@ -8,9 +8,7 @@ os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("OLLAMA_BASE_URL", "http://localhost:11434")
 os.environ.setdefault("EMBEDDING_MODEL", "qwen3-embedding:0.6b")
 
-from ask_repo_worker.celery_app import celery_app
-from ask_repo_worker.config import WorkerSettings
-from ask_repo_worker.queues.tasks import smoke_check
+from ask_repo_worker import WorkerSettings, celery_app, smoke_check
 
 
 def test_worker_settings():

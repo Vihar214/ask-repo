@@ -1,8 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import fileUrl from 'url';
-import pg from 'pg';
-import dotenv from 'dotenv';
+import { createRequire } from 'module';
+
+const require = createRequire(new URL('../backend/package.json', import.meta.url));
+const pg = require('pg');
+const dotenv = require('dotenv');
 
 dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
 dotenv.config();
