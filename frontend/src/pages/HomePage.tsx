@@ -31,46 +31,23 @@ export function HomePage({
         </p>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="border border-pixel-border bg-pixel-surface-light p-5 sm:p-7">
-          <SessionPanel state={state} status={status} runAction={runAction} />
-          {status === 'ready' && !loggedIn && (
-            <p
-              className="mt-5 border border-pixel-border bg-pixel-surface-cream px-4 py-3 text-sm leading-6 text-pixel-text"
-              role="alert"
-            >
-              <span className="font-semibold uppercase tracking-[0.16em]">
-                Warning:
-              </span>{' '}
-              Guest-created repository data is temporary and will be lost if you
-              log in.
-            </p>
-          )}
-          <div className="mt-6">
-            <RepositoryUrlField />
-          </div>
+      <section className="max-w-3xl border border-pixel-border bg-pixel-surface-light p-5 sm:p-7">
+        <SessionPanel state={state} status={status} runAction={runAction} />
+        {status === 'ready' && !loggedIn && (
+          <p
+            className="mt-5 border border-pixel-border bg-pixel-surface-cream px-4 py-3 text-sm leading-6 text-pixel-text"
+            role="alert"
+          >
+            <span className="font-semibold uppercase tracking-[0.16em]">
+              Warning:
+            </span>{' '}
+            Guest-created repository data is temporary and will be lost if you
+            log in.
+          </p>
+        )}
+        <div className="mt-6">
+          <RepositoryUrlField />
         </div>
-
-        <aside className="border border-pixel-border bg-pixel-surface-dark p-5 text-pixel-surface-light">
-          <div className="pixel-corner mb-5 h-14 w-14 border border-pixel-border bg-[#ff7b42]" />
-          <h2 className="text-sm font-semibold uppercase tracking-[0.2em]">
-            v0 scope
-          </h2>
-          <dl className="mt-5 space-y-4 text-sm leading-6">
-            <div>
-              <dt className="text-pixel-muted">Guest limit</dt>
-              <dd>500 files</dd>
-            </div>
-            <div>
-              <dt className="text-pixel-muted">Logged-in limit</dt>
-              <dd>10,000 files</dd>
-            </div>
-            <div>
-              <dt className="text-pixel-muted">Private access</dt>
-              <dd>One-use pasted token, never stored</dd>
-            </div>
-          </dl>
-        </aside>
       </section>
     </div>
   );

@@ -12,7 +12,7 @@ import { AuthStore, SessionRecord, UserRecord } from './store.js';
 const GUEST_TTL_MS = 24 * 60 * 60 * 1000;
 const LOGGED_IN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
-const token = () => randomBytes(32).toString('base64url');
+const createSecureToken = () => randomBytes(32).toString('base64url');
 const now = () => new Date();
 
 export interface AuthServiceDependencies {
@@ -79,7 +79,7 @@ export class AuthService {
     return this.dependencies.store.createSession(
       'guest',
       null,
-      token(),
+      createSecureToken(),
       new Date(current.getTime() + GUEST_TTL_MS),
       current,
     );
@@ -159,7 +159,7 @@ export class AuthService {
     if (!session) {
       session = await this.createGuestSession();
     }
-    const state = token();
+    const state = createSecureToken();
     await this.dependencies.store.updateSession(session.id, {
       oauthState: state,
       oauthStateExpiresAt: new Date(
@@ -193,10 +193,7 @@ export class AuthService {
         !found.session.oauthStateExpiresAt ||
         found.session.oauthStateExpiresAt <= this.clock()
       ) {
-        if (found.session)
-          await this.dependencies.store.deleteSession(found.session.id);
-        const guest = await this.createGuestSession();
-        this.setSessionCookie(response, guest.id, false);
+        await this.preserveSessionAfterFailedLogin(found.session, response);
         return this.config.FRONTEND_URL;
       }
       const identity = await this.oauth.exchange(code);
@@ -206,19 +203,34 @@ export class AuthService {
       const session = await this.dependencies.store.createSession(
         'logged_in',
         user.id,
-        token(),
+        createSecureToken(),
         new Date(current.getTime() + LOGGED_IN_TTL_MS),
         current,
       );
       this.setSessionCookie(response, session.id, true);
       return this.config.FRONTEND_URL;
     } catch (error) {
-      if (priorSession)
-        await this.dependencies.store.deleteSession(priorSession.id);
-      const guest = await this.createGuestSession();
-      this.setSessionCookie(response, guest.id, false);
+      await this.preserveSessionAfterFailedLogin(priorSession, response);
       return this.config.FRONTEND_URL;
     }
+  }
+
+  private async preserveSessionAfterFailedLogin(
+    session: SessionRecord | undefined,
+    response: { cookie: (...args: any[]) => void },
+  ) {
+    if (!session) {
+      const guest = await this.createGuestSession();
+      this.setSessionCookie(response, guest.id, false);
+      return;
+    }
+    await this.dependencies.store.updateSession(session.id, {
+      oauthState: null,
+      oauthStateExpiresAt: null,
+    });
+    session.oauthState = null;
+    session.oauthStateExpiresAt = null;
+    this.setSessionCookie(response, session.id, session.kind === 'logged_in');
   }
 
   requiresCsrf(

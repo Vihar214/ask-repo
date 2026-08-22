@@ -2,9 +2,9 @@
 
 **What to build:** Make the app enter a complete Guest Session flow on first load. A new visitor should receive a Guest Session backed by Postgres, the frontend should learn that state from `GET /session`, and the page should show the Guest Data Warning above the repository URL input whenever the user is not logged in.
 
-**Blocked by:** None — can start immediately
+Blocked by: None — can start immediately
 
-**Status:** ready-for-human
+Status: ready-for-human
 
 - [ ] A first-time visitor receives a new Guest Session through the normal frontend bootstrap flow.
 - [ ] `GET /session` returns explicit guest session state with session kind and expiry metadata.

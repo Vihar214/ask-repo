@@ -56,7 +56,7 @@ describe('Frontend Shell', () => {
     ).toBeInTheDocument();
   });
 
-  it('returns to signed-out guest state after account deletion', async () => {
+  it('returns to Guest Session state after account deletion', async () => {
     const states = [
       {
         session: {
@@ -93,7 +93,7 @@ describe('Frontend Shell', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(/temporary/i);
   });
 
-  it('returns to signed-out guest state after logout', async () => {
+  it('returns to Guest Session state after logout', async () => {
     const states = [
       {
         session: {

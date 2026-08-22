@@ -2,9 +2,9 @@
 
 **What to build:** Let a Guest User or returning user log in with GitHub OAuth and land back in the app with a persistent Logged-In Session. The backend should handle OAuth start and callback, create or reuse the Logged-In User, establish the Logged-In Session, and return the frontend to a logged-in state after redirecting to `/`.
 
-**Blocked by:** 01 — Guest Session Bootstrap And Warning
+Blocked by: 01 — Guest Session Bootstrap And Warning
 
-**Status:** ready-for-human
+Status: ready-for-human
 
 - [ ] GitHub OAuth start and callback routes work end to end through the backend-owned login flow.
 - [ ] OAuth state is tied to the current Session and validated on callback.

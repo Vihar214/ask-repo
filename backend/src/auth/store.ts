@@ -136,16 +136,20 @@ export class PostgresAuthStore implements AuthStore {
       >
     >,
   ) {
+    const updateValues: Partial<DatabaseSchema['sessions']> = {
+      updated_at: new Date(),
+    };
+    if ('csrfToken' in changes) updateValues.csrf_token = changes.csrfToken;
+    if ('oauthState' in changes) updateValues.oauth_state = changes.oauthState;
+    if ('oauthStateExpiresAt' in changes)
+      updateValues.oauth_state_expires_at = changes.oauthStateExpiresAt;
+    if ('expiresAt' in changes) updateValues.expires_at = changes.expiresAt;
+    if ('lastSeenAt' in changes)
+      updateValues.last_seen_at = changes.lastSeenAt;
+
     await this.db
       .updateTable('sessions')
-      .set({
-        csrf_token: changes.csrfToken,
-        oauth_state: changes.oauthState,
-        oauth_state_expires_at: changes.oauthStateExpiresAt,
-        expires_at: changes.expiresAt,
-        last_seen_at: changes.lastSeenAt,
-        updated_at: new Date(),
-      })
+      .set(updateValues)
       .where('id', '=', id)
       .execute();
   }

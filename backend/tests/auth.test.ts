@@ -176,7 +176,7 @@ describe('auth HTTP API', () => {
     expect(stale.body.session.recovered).toBe(true);
   });
 
-  it('invalidates the prior session when a GitHub identity exchange fails', async () => {
+  it('keeps the prior guest session when a GitHub identity exchange fails', async () => {
     const store = new MemoryAuthStore();
     const app = createApp(config, {
       auth: {
@@ -190,12 +190,15 @@ describe('auth HTTP API', () => {
       },
     });
     const agent = request.agent(app);
-    await agent.get('/session');
+    const original = await agent.get('/session');
     const start = await agent.get('/auth/github/start');
     const state = new URL(start.headers.location).searchParams.get('state')!;
     await agent.get(`/auth/github/callback?code=ok&state=${state}`);
     const session = await agent.get('/session');
     expect(session.body.session.kind).toBe('guest');
+    expect(session.body.session.csrfToken).toBe(
+      original.body.session.csrfToken,
+    );
     expect(store.sessions.size).toBe(1);
   });
 
