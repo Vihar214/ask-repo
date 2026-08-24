@@ -1,4 +1,4 @@
-import type { SessionState } from '../../types';
+import type { SessionState } from './models';
 
 type SessionStatus = 'loading' | 'ready' | 'error';
 
