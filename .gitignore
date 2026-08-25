@@ -25,6 +25,7 @@ pnpm-debug.log*
 
 # Local data
 .codegraph/
+.gemini/
 tmp/
 temp/
 uploads/
@@ -38,4 +39,6 @@ repos/
 backend/.yarn/install-state.gz
 frontend/.yarn/install-state.gz
 
+GEMINI.md
+.scratch/02-repo-submit-clone-and-file-limit/
 scripts/
