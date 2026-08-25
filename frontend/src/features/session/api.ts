@@ -1,6 +1,6 @@
-import type { SessionState } from '../../types';
+import { axiosDelete, axiosGet, axiosPost } from '../../api';
 
-export type SessionFetcher = () => Promise<SessionState>;
+export type SessionFetcher = () => Promise<unknown>;
 export type SessionAction = (
   url: string,
   method: 'POST' | 'DELETE',
@@ -8,9 +8,7 @@ export type SessionAction = (
 ) => Promise<void>;
 
 export const fetchSession: SessionFetcher = async () => {
-  const response = await fetch('/session', { credentials: 'include' });
-  if (!response.ok) throw new Error('Unable to load session');
-  return response.json() as Promise<SessionState>;
+  return axiosGet('/session');
 };
 
 export const sendSessionAction: SessionAction = async (
@@ -18,9 +16,12 @@ export const sendSessionAction: SessionAction = async (
   method,
   csrfToken,
 ) => {
-  await fetch(url, {
-    method,
-    credentials: 'include',
-    headers: { 'x-csrf-token': csrfToken },
-  });
+  const config = { headers: { 'x-csrf-token': csrfToken } };
+
+  if (method === 'POST') {
+    await axiosPost(url, null, config);
+    return;
+  }
+
+  await axiosDelete(url, null, config);
 };

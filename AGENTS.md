@@ -8,7 +8,8 @@ Before planning or coding, read:
 2. `docs/overview.md` for product scope.
 3. `docs/architecture.md` for system design.
 4. `docs/decisions.md` for locked/deferred/open decisions.
-5. The relevant `.scratch/<feature>/spec.md` and ticket file before implementation.
+5. For frontend work, `docs/agents/frontend.md` for frontend structure rules.
+6. The relevant `.scratch/<feature>/spec.md` and ticket file before implementation.
 
 ### Issue tracker
 
@@ -21,6 +22,10 @@ Use the default triage labels: `needs-triage`, `needs-info`, `ready-for-agent`, 
 ### Domain docs
 
 Use single-context domain docs: `docs/CONTEXT.md` plus `docs/adr/`. See `docs/agents/domain.md`.
+
+### Frontend rules
+
+For frontend implementation or refactors, follow `docs/agents/frontend.md`.
 
 ### Workflow
 

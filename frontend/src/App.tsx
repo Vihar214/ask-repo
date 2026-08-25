@@ -1,8 +1,8 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { AppShell } from './components';
 import type { SessionAction, SessionFetcher } from './features/session';
-import { HomePage } from './pages';
+import { AppRoutes } from './routes';
 
 export function App({
   getSession,
@@ -11,18 +11,20 @@ export function App({
   getSession?: SessionFetcher;
   mutateSession?: SessionAction;
 }) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+  );
+
   return (
-    <BrowserRouter>
-      <AppShell>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <HomePage getSession={getSession} mutateSession={mutateSession} />
-            }
-          />
-        </Routes>
-      </AppShell>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <AppRoutes getSession={getSession} mutateSession={mutateSession} />
+    </QueryClientProvider>
   );
 }
