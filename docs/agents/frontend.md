@@ -19,16 +19,16 @@ Allowed in `src/api`:
 
 - Axios instance and interceptors.
 - HTTP verb helpers such as `axiosGet`, `axiosPost`, `axiosPut`, `axiosPatch`, and `axiosDelete`.
-- Token/session refresh handlers.
-- Normalized API error schemas and types.
-- Generic API utilities.
-- Generic reusable API hooks only.
+- Cookie-session and CSRF request helpers when they are app-wide.
+- Normalized API error schemas and types when more than one feature uses them.
+- Small generic API utilities that are already needed by current feature code.
 
 Not allowed in `src/api`:
 
 - Feature endpoint hooks.
 - Feature-specific request/response schemas.
 - Feature-specific query keys.
+- Speculative generic list models, auth token helpers, or browser storage helpers.
 - Component or screen logic.
 
 ## Feature Shape
@@ -51,7 +51,7 @@ src/features/<feature>/
 
 Small features may keep a single `model.ts` or `hooks.ts`. When a feature grows, split into `models/` and `hooks/` folders with `index.ts` barrel exports, usually using `export * from "./<file>";`.
 
-Use kebab-case for feature/domain filenames when creating new files unless the surrounding project already has a stronger local convention.
+Use camelCase for feature/domain hook, model, utility, and API filenames when creating new files. Use PascalCase for React component and route component files.
 
 ## Routing
 
@@ -62,9 +62,6 @@ Prefer this shape for routing:
 ```text
 src/routes/
   AppRoutes.tsx
-  ProtectedRoutes.tsx
-  AuthGuard.tsx
-  DynamicNavigate.tsx
   react-router.tsx
   index.ts
 
@@ -77,12 +74,12 @@ Routing rules:
 - Keep the app-level router in `src/routes/react-router.tsx`.
 - Render the router through `src/routes/AppRoutes.tsx` with `RouterProvider`.
 - Mount feature route groups from the app router with wildcard paths, for example `/profile/*` or `/repos/*`.
-- Keep auth, session, and onboarding guards in route guard components under `src/routes`.
+- Create auth, session, onboarding guards, and redirect helpers only when a real route needs them.
 - Put each feature's child routes in `src/features/<feature>/routes.tsx`.
 - Feature route modules should be thin: import feature components, declare `<Routes>` and `<Route>` entries, and avoid data fetching or business logic.
 - Use index routes for a feature's default screen.
 - Use route params for entity identity, for example `:repoId`, and read them in the screen/component or a feature hook.
-- Keep redirects that choose the user's landing destination in a dedicated route component such as `DynamicNavigate`.
+- Keep redirects that choose the user's landing destination in a dedicated route component once that branching behavior exists.
 - Export route modules through the relevant `index.ts` only when another module needs that public import.
 
 ## Models

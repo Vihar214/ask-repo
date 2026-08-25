@@ -27,5 +27,3 @@ export const createAppRouter = ({
       ],
     },
   ]);
-
-export const router = createAppRouter();
