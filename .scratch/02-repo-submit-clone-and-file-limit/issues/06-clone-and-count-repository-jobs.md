@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — Submit Public Repository Jobs, 03 — Handle Private Repository Token Submission
 
-**Status:** ready-for-agent
+Status: ready-for-agent
 
 - [ ] The worker accepts the clone/count Repository Job payload shape produced by the backend.
 - [ ] Public Repository Jobs clone without a Private Repository Token.

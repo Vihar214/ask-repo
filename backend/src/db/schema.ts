@@ -61,6 +61,13 @@ export interface DatabaseSchema {
     failure_message: string | null;
     failure_detail: string | null;
     temp_clone_path: string | null;
+    previous_repository_status:
+      | 'queued'
+      | 'processing'
+      | 'ready_for_indexing'
+      | 'rejected_file_limit'
+      | 'failed'
+      | null;
     started_at: Date | null;
     ready_for_indexing_at: Date | null;
     finished_at: Date | null;

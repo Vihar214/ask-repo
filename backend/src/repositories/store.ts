@@ -32,12 +32,19 @@ export class PostgresRepositoryStore implements RepositoryStore {
   async createJobForRepository(repositoryId: string) {
     const jobId = crypto.randomUUID();
     const now = new Date();
+    const repository = await this.db
+      .selectFrom('repositories')
+      .select(['status'])
+      .where('id', '=', repositoryId)
+      .executeTakeFirstOrThrow();
+
     await this.db
       .insertInto('repository_jobs')
       .values({
         id: jobId,
         repository_id: repositoryId,
         replaces_repository_id: null,
+        previous_repository_status: repository.status,
         status: 'queued',
         created_at: now,
         updated_at: now,
@@ -80,6 +87,7 @@ export class PostgresRepositoryStore implements RepositoryStore {
           id: jobId,
           repository_id: repoId,
           replaces_repository_id: params.replacesRepositoryId ?? null,
+          previous_repository_status: null,
           status: 'queued',
           created_at: now,
           updated_at: now,

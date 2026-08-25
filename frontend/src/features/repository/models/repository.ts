@@ -9,46 +9,51 @@ export const repositorySubmitInputSchema = z
     replaceActiveRepository: z.boolean(),
     reindexExistingRepository: z.boolean(),
   })
+  .strict()
   .refine(
     (input) => input.isPrivate || input.privateRepositoryToken === null,
     'Public repositories cannot include token material.',
   );
 
-export const repositorySummarySchema = z.object({
-  id: z.string(),
-  url: z.string(),
-  githubOwner: z.string(),
-  githubRepo: z.string(),
-  isPrivate: z.boolean(),
-  status: z.enum([
-    'queued',
-    'processing',
-    'ready_for_indexing',
-    'rejected_file_limit',
-    'failed',
-  ]),
-});
+export const repositorySummarySchema = z
+  .object({
+    id: z.string(),
+    url: z.string(),
+    githubOwner: z.string(),
+    githubRepo: z.string(),
+    isPrivate: z.boolean(),
+    status: z.enum([
+      'queued',
+      'processing',
+      'ready_for_indexing',
+      'rejected_file_limit',
+      'failed',
+    ]),
+  })
+  .strict();
 
-export const repositoryJobSchema = z.object({
-  id: z.string(),
-  repository_id: z.string().optional(),
-  repositoryId: z.string().optional(),
-  replaces_repository_id: z.string().nullable().optional(),
-  replacesRepositoryId: z.string().nullable().optional(),
-  status: z.enum([
-    'queued',
-    'cloning',
-    'counting_files',
-    'ready_for_indexing',
-    'rejected_file_limit',
-    'failed',
-  ]),
-});
+export const repositoryJobSchema = z
+  .object({
+    id: z.string(),
+    repository_id: z.string(),
+    replaces_repository_id: z.string().nullable(),
+    status: z.enum([
+      'queued',
+      'cloning',
+      'counting_files',
+      'ready_for_indexing',
+      'rejected_file_limit',
+      'failed',
+    ]),
+  })
+  .strict();
 
-export const submitRepositoryResponseSchema = z.object({
-  repository: repositorySummarySchema,
-  job: repositoryJobSchema,
-});
+export const submitRepositoryResponseSchema = z
+  .object({
+    repository: repositorySummarySchema,
+    job: repositoryJobSchema,
+  })
+  .strict();
 
 export type RepositorySubmitInput = z.infer<typeof repositorySubmitInputSchema>;
 export type SubmitRepositoryResponse = z.infer<

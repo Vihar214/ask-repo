@@ -27,6 +27,7 @@ CREATE TABLE repository_jobs (
     failure_message TEXT,
     failure_detail TEXT,
     temp_clone_path TEXT,
+    previous_repository_status TEXT CHECK (previous_repository_status IN ('queued', 'processing', 'ready_for_indexing', 'rejected_file_limit', 'failed')),
     started_at TIMESTAMP WITH TIME ZONE,
     ready_for_indexing_at TIMESTAMP WITH TIME ZONE,
     finished_at TIMESTAMP WITH TIME ZONE,

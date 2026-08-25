@@ -143,6 +143,7 @@ class MemoryRepositoryStore {
       failure_message: null,
       failure_detail: null,
       temp_clone_path: null,
+      previous_repository_status: null,
       started_at: null,
       ready_for_indexing_at: null,
       finished_at: null,
@@ -156,10 +157,12 @@ class MemoryRepositoryStore {
 
   async createJobForRepository(repositoryId: string) {
     const now = new Date();
+    const repository = this.repositories.get(repositoryId);
     const job: StoredRepositoryJob = {
       id: `repository-job-${++this.count}`,
       repository_id: repositoryId,
       replaces_repository_id: null,
+      previous_repository_status: repository?.status ?? null,
       status: 'queued',
       file_count: null,
       file_limit: null,

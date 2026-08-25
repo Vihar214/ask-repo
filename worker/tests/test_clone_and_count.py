@@ -12,6 +12,7 @@ os.environ.setdefault("EMBEDDING_MODEL", "qwen3-embedding:0.6b")
 
 from ask_repo_worker.repository_jobs import (
     CloneAndCountRepositoryPayload,
+    _sanitize_failure_detail,
     clone_and_count_repository,
 )
 
@@ -40,8 +41,8 @@ class RecordingRepositoryJobStore:
         self.events.append(("owner_kind", repository_id))
         return self.session_kind
 
-    def mark_cloning(self, repository_job_id):
-        self.events.append(("status", repository_job_id, "cloning"))
+    def mark_cloning(self, repository_job_id, repository_id):
+        self.events.append(("status", repository_job_id, repository_id, "cloning"))
 
     def mark_counting_files(self, repository_job_id):
         self.events.append(("status", repository_job_id, "counting_files"))
@@ -51,6 +52,7 @@ class RecordingRepositoryJobStore:
         repository_job_id,
         repository_id,
         file_count,
+        file_limit,
         temp_clone_path,
         replace_repository_id=None,
     ):
@@ -60,6 +62,7 @@ class RecordingRepositoryJobStore:
                 repository_job_id,
                 repository_id,
                 file_count,
+                file_limit,
                 temp_clone_path,
                 replace_repository_id,
             )
@@ -133,13 +136,13 @@ def test_clone_and_count_marks_under_limit_repository_ready_for_indexing(tmp_pat
         store=store,
     )
 
-    assert ("status", "job-under-limit", "cloning") in store.events
+    assert ("status", "job-under-limit", "repo-1", "cloning") in store.events
     assert ("status", "job-under-limit", "counting_files") in store.events
     ready = next(event for event in store.events if event[0] == "ready_for_indexing")
-    assert ready[1:4] == ("job-under-limit", "repo-1", 3)
-    assert ready[4] == str(TEMP_CLONE_ROOT / "job-under-limit")
-    assert ready[5] is None
-    assert Path(ready[4]).exists()
+    assert ready[1:5] == ("job-under-limit", "repo-1", 3, 500)
+    assert ready[5] == str(TEMP_CLONE_ROOT / "job-under-limit")
+    assert ready[6] is None
+    assert Path(ready[5]).exists()
 
 
 def test_clone_and_count_rejects_over_limit_guest_repository_and_deletes_clone(tmp_path):
@@ -224,3 +227,16 @@ def test_clone_and_count_sanitizes_clone_failures_and_removes_partial_clone(tmp_
     assert "ghp_secret_token" not in failed[5]
     assert "https://ghp_secret_token@" not in failed[5]
     assert not (TEMP_CLONE_ROOT / "job-clone-failure").exists()
+
+
+def test_sanitize_failure_detail_removes_tokens_and_temp_clone_paths():
+    detail = (
+        "fatal: token ghp_secret_token failed in "
+        "/tmp/ask-repo-clones/job-clone-failure/.git"
+    )
+
+    sanitized = _sanitize_failure_detail(detail, "ghp_secret_token")
+
+    assert "ghp_secret_token" not in sanitized
+    assert "/tmp/ask-repo-clones/job-clone-failure" not in sanitized
+    assert "[temp clone path redacted]" in sanitized

@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — Submit Public Repository Jobs
 
-**Status:** ready-for-agent
+Status: ready-for-agent
 
 - [ ] The frontend exposes a private Repository toggle that reveals a Private Repository Token field.
 - [ ] The Private Repository Token field has show/hide behavior and helper copy saying it is used only for this clone and is not stored.

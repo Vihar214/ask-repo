@@ -59,6 +59,7 @@ describe('Repository submit migration contract', () => {
     expect(migration).toContain('failure_message TEXT');
     expect(migration).toContain('failure_detail TEXT');
     expect(migration).toContain('temp_clone_path TEXT');
+    expect(migration).toContain('previous_repository_status TEXT CHECK');
     expect(migration).toContain('started_at TIMESTAMP WITH TIME ZONE');
     expect(migration).toContain(
       'ready_for_indexing_at TIMESTAMP WITH TIME ZONE',

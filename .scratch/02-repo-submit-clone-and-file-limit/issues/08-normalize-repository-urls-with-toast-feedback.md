@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — Submit Public Repository Jobs
 
-**Status:** ready-for-agent
+Status: ready-for-agent
 
 - [ ] Repository URL normalization runs on blur and on submit.
 - [ ] Supported GitHub HTTPS Repository URLs are normalized to the stored Repository URL form.

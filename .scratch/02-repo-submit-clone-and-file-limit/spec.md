@@ -38,7 +38,7 @@ The User should be able to enter a GitHub Repository URL, have it normalized int
 20. As a Logged-In User, I want the over-limit message to say logged-in repositories are limited to 10,000 files for now, so that the current product boundary is clear.
 21. As a Guest User, I want to have only one Active Repository, so that guest data stays temporary and bounded.
 22. As a Guest User, I want a second Repository submission to require explicit replacement consent, so that I do not lose the current Active Repository by accident.
-23. As a Guest User, I want consented replacement to delete the old guest Repository data before creating the new Repository, so that the one-Repository rule is enforced.
+23. As a Guest User, I want consented replacement to keep my old Active Repository usable until the replacement Repository passes clone/count, so that a failed replacement does not leave me with no working Repository.
 24. As a Logged-In User, I want duplicate submission of the same Repository URL to warn me before reindexing, so that I do not overwrite existing Repository work by accident.
 25. As a Logged-In User, I want consented reindexing to create a new Repository Job on the existing Repository, so that the Repository identity remains stable.
 26. As a Logged-In User, I want the old Repository Index to remain usable until a future reindex succeeds, so that a failed reindex does not destroy existing usable data.
@@ -48,7 +48,7 @@ The User should be able to enter a GitHub Repository URL, have it normalized int
 30. As a developer, I want Repository records stored separately from Repository Job attempts, so that identity and processing history are not conflated.
 31. As a developer, I want the Repository URL stored as the normalized `url`, so that raw submitted URLs and accidental secrets are not persisted.
 32. As a developer, I want Repository ownership to point to exactly one Logged-In User or Guest Session, so that data ownership is unambiguous.
-33. As a developer, I want a database invariant enforcing one guest Repository per Guest Session, so that concurrent requests cannot bypass the Active Repository rule.
+33. As a developer, I want a database invariant enforcing one Active Repository per Guest Session, so that concurrent requests cannot bypass the Active Repository rule while replacement attempts are allowed to run inactive.
 34. As a developer, I want a database invariant enforcing one Repository URL per Logged-In User, so that duplicate detection is reliable.
 35. As a developer, I want Repository Jobs to record detailed job status, so that later status streaming can expose real progress.
 36. As a developer, I want Repositories to record coarse current status, so that later UI surfaces can list Repository state without reading every job.
@@ -115,11 +115,14 @@ The User should be able to enter a GitHub Repository URL, have it normalized int
 - Sanitized failure detail may be stored for developer/debug use. It must not contain Private Repository Tokens, raw token-bearing URLs, or local Temp Clone paths intended only for internal use.
 - Repository records store ownership, normalized URL, GitHub owner, GitHub repo, user-declared `is_private`, coarse current status, and timestamps.
 - Repository ownership is exactly one of Logged-In User or Guest Session. The database enforces this with a check constraint.
-- Guest Users can have only one Active Repository. The database enforces one guest Repository per Guest Session.
+- Guest Users can have only one Active Repository. The database enforces one active guest Repository per Guest Session while allowing inactive replacement attempts to coexist until they succeed or fail.
 - Logged-In Users can have only one Repository for a given normalized Repository URL. The database enforces uniqueness for logged-in Repository URL ownership.
 - A Guest User submitting a new Repository while an Active Repository exists receives a conflict unless `replaceActiveRepository` is true.
 - The guest replacement conflict response uses code `active_repository_exists`, includes a user-safe message that submitting a new Repository will delete the current guest Repository, and includes a small current Repository summary.
-- When `replaceActiveRepository` is true, the old guest Repository and dependent Repository Jobs are deleted before the new Repository is created.
+- When `replaceActiveRepository` is true, the backend creates a replacement Repository and Repository Job without deleting the existing Active Repository immediately.
+- The replacement Repository remains inactive until its clone/count job reaches `ready_for_indexing`.
+- When a guest replacement Repository reaches `ready_for_indexing`, the worker deletes the old guest Repository and dependent Repository Jobs, then marks the replacement Repository as the Active Repository.
+- If the replacement clone/count job fails or is rejected, the old guest Active Repository remains in place.
 - A Logged-In User submitting a Repository URL that already exists receives a conflict unless `reindexExistingRepository` is true.
 - The logged-in duplicate conflict response uses code `repository_already_exists`, includes a user-safe message that reindexing will replace the old index after the new one succeeds, and includes a small existing Repository summary.
 - When `reindexExistingRepository` is true, the backend creates a new Repository Job for the existing Repository rather than creating a new Repository row.

@@ -4,7 +4,7 @@
 
 **Blocked by:** 03 — Handle Private Repository Token Submission, 04 — Enforce Guest Active Repository Replacement, 05 — Enforce Logged-In Duplicate Reindex Consent, 07 — Enforce File Limits And Temp Clone Cleanup, 08 — Normalize Repository URLs With Toast Feedback
 
-**Status:** ready-for-agent
+Status: ready-for-agent
 
 - [ ] End-to-end smoke verification covers public Repository submission from frontend payload through queued Repository Job creation.
 - [ ] End-to-end smoke verification covers private Repository submission without persisting Private Repository Tokens.

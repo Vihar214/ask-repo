@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 from datetime import UTC, datetime
@@ -11,6 +12,7 @@ from ask_repo_worker.db.engine import get_engine
 from ask_repo_worker.db.tables import repositories, repository_jobs
 
 TEMP_CLONE_ROOT = Path("/tmp/ask-repo-clones")
+TEMP_CLONE_PATH_PATTERN = re.compile(r"/tmp/ask-repo-clones/[^\s'\"`]+")
 GUEST_FILE_LIMIT = 500
 LOGGED_IN_FILE_LIMIT = 10000
 
@@ -35,9 +37,14 @@ class RepositoryJobStore:
             ).first()
         return "logged_in" if row and row.user_id else "guest"
 
-    def mark_cloning(self, repository_job_id):
+    def mark_cloning(self, repository_job_id, repository_id):
         now = _now()
         with self.engine.begin() as connection:
+            connection.execute(
+                update(repositories)
+                .where(repositories.c.id == repository_id)
+                .values(status="processing", updated_at=now)
+            )
             connection.execute(
                 update(repository_jobs)
                 .where(repository_jobs.c.id == repository_job_id)
@@ -58,6 +65,7 @@ class RepositoryJobStore:
         repository_job_id,
         repository_id,
         file_count,
+        file_limit,
         temp_clone_path,
         replace_repository_id=None,
     ):
@@ -82,6 +90,7 @@ class RepositoryJobStore:
                 .values(
                     status="ready_for_indexing",
                     file_count=file_count,
+                    file_limit=file_limit,
                     temp_clone_path=temp_clone_path,
                     ready_for_indexing_at=now,
                     finished_at=now,
@@ -99,10 +108,13 @@ class RepositoryJobStore:
     ):
         now = _now()
         with self.engine.begin() as connection:
+            repository_status = self._repository_status_after_unsuccessful_job(
+                connection, repository_job_id, "rejected_file_limit"
+            )
             connection.execute(
                 update(repositories)
                 .where(repositories.c.id == repository_id)
-                .values(status="rejected_file_limit", updated_at=now)
+                .values(status=repository_status, updated_at=now)
             )
             connection.execute(
                 update(repository_jobs)
@@ -128,10 +140,13 @@ class RepositoryJobStore:
     ):
         now = _now()
         with self.engine.begin() as connection:
+            repository_status = self._repository_status_after_unsuccessful_job(
+                connection, repository_job_id, "failed"
+            )
             connection.execute(
                 update(repositories)
                 .where(repositories.c.id == repository_id)
-                .values(status="failed", updated_at=now)
+                .values(status=repository_status, updated_at=now)
             )
             connection.execute(
                 update(repository_jobs)
@@ -146,6 +161,18 @@ class RepositoryJobStore:
                 )
             )
 
+    def _repository_status_after_unsuccessful_job(
+        self, connection, repository_job_id, unsuccessful_status
+    ):
+        job = connection.execute(
+            select(repository_jobs.c.previous_repository_status).where(
+                repository_jobs.c.id == repository_job_id
+            )
+        ).first()
+        if job and job.previous_repository_status:
+            return job.previous_repository_status
+        return unsuccessful_status
+
 
 def clone_and_count_repository(payload: CloneAndCountRepositoryPayload, store=None):
     store = store or RepositoryJobStore()
@@ -154,7 +181,7 @@ def clone_and_count_repository(payload: CloneAndCountRepositoryPayload, store=No
     owner_kind = store.get_repository_owner_kind(repo_id)
     file_limit = GUEST_FILE_LIMIT if owner_kind == "guest" else LOGGED_IN_FILE_LIMIT
 
-    store.mark_cloning(job_id)
+    store.mark_cloning(job_id, repo_id)
 
     clone_path = TEMP_CLONE_ROOT / job_id
     if clone_path.exists():
@@ -220,6 +247,7 @@ def clone_and_count_repository(payload: CloneAndCountRepositoryPayload, store=No
             job_id,
             repo_id,
             file_count,
+            file_limit,
             str(clone_path),
             payload.replaceRepositoryId,
         )
@@ -276,4 +304,5 @@ def _sanitize_failure_detail(detail: str, token: str | None):
     sanitized = detail.replace("\n", " ").strip()
     if token:
         sanitized = sanitized.replace(token, "***")
+    sanitized = TEMP_CLONE_PATH_PATTERN.sub("[temp clone path redacted]", sanitized)
     return sanitized[:1000]

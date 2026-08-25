@@ -48,6 +48,7 @@ repository_jobs = Table(
     Column("failure_message", String),
     Column("failure_detail", String),
     Column("temp_clone_path", String),
+    Column("previous_repository_status", String),
     Column("started_at", DateTime),
     Column("ready_for_indexing_at", DateTime),
     Column("finished_at", DateTime),

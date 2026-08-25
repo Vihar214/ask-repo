@@ -1,10 +1,10 @@
 import { Express, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { AuthService } from '../../auth/index.js';
-import type {
-  CloneAndCountPayload,
-  RepositoryRecord,
-  RepositoryRouteDependencies,
+import {
+  submitRepository,
+  type RepositoryRecord,
+  type RepositoryRouteDependencies,
 } from '../../repositories/index.js';
 
 const submitRepositorySchema = z.object({
@@ -23,44 +23,6 @@ const summarizeRepository = (repository: RepositoryRecord) => ({
   isPrivate: repository.is_private,
   status: repository.status,
 });
-
-function normalizeGitHubRepositoryUrl(url: string) {
-  let parsed: URL;
-  try {
-    parsed = new URL(url);
-  } catch {
-    return { error: 'invalid_url' as const };
-  }
-
-  if (parsed.username || parsed.password) {
-    return { error: 'token_in_url_rejected' as const };
-  }
-
-  if (parsed.protocol !== 'https:' || parsed.hostname !== 'github.com') {
-    return { error: 'unsupported_url' as const };
-  }
-
-  const pathParts = parsed.pathname.replace(/\/$/, '').split('/');
-  if (pathParts.length !== 3 || !pathParts[1] || !pathParts[2]) {
-    return { error: 'unsupported_url' as const };
-  }
-
-  const githubOwner = pathParts[1].toLowerCase();
-  let githubRepo = pathParts[2].toLowerCase();
-  if (githubRepo.endsWith('.git')) {
-    githubRepo = githubRepo.slice(0, -4);
-  }
-
-  if (!githubRepo) {
-    return { error: 'unsupported_url' as const };
-  }
-
-  return {
-    normalizedUrl: `https://github.com/${githubOwner}/${githubRepo}`,
-    githubOwner,
-    githubRepo,
-  };
-}
 
 export function registerRepositoryRoutes(
   app: Express,
@@ -87,152 +49,57 @@ export function registerRepositoryRoutes(
           });
         }
 
-        const {
-          url,
-          isPrivate,
-          privateRepositoryToken,
-          replaceActiveRepository,
-          reindexExistingRepository,
-        } = parsedBody.data;
-
-        if (!isPrivate && privateRepositoryToken) {
-          return response.status(400).json({
-            code: 'accidental_token_rejected',
-            message: 'Public repositories should not include a token.',
-          });
-        }
-        if (isPrivate && !privateRepositoryToken) {
-          return response.status(400).json({
-            code: 'token_required',
-            message: 'Private repositories require a token.',
-          });
-        }
-        if (
-          isPrivate &&
-          privateRepositoryToken &&
-          privateRepositoryToken.length > 512
-        ) {
-          return response.status(400).json({
-            code: 'token_too_long',
-            message: 'Private Repository Token must not exceed 512 characters.',
-          });
-        }
-
-        const normalized = normalizeGitHubRepositoryUrl(url);
-        if ('error' in normalized) {
-          return response.status(400).json({
-            code: normalized.error,
-            message:
-              normalized.error === 'invalid_url'
-                ? 'URL is invalid.'
-                : 'Only GitHub HTTPS repository root URLs are supported.',
-          });
-        }
-
         if (found.session.kind === 'guest') {
-          const existing = await dependencies.store.findGuestActiveRepository(
-            found.session.id,
-          );
-          if (existing && !replaceActiveRepository) {
-            return response.status(409).json({
-              code: 'active_repository_exists',
-              message:
-                'Submitting a new repository will delete your current guest repository.',
-              repository: summarizeRepository(existing),
-            });
-          }
-          const { repository, job } =
-            await dependencies.store.createRepositoryWithJob({
-              sessionId: found.session.id,
-              userId: null,
-              url: normalized.normalizedUrl,
-              githubOwner: normalized.githubOwner,
-              githubRepo: normalized.githubRepo,
-              isPrivate,
-              activeRepository: !existing,
-              replacesRepositoryId: existing?.id ?? null,
-            });
-          const payload: CloneAndCountPayload = {
-            repositoryJobId: job.id,
-            repositoryId: repository.id,
-            url: normalized.normalizedUrl,
-            isPrivate,
-            privateRepositoryToken: isPrivate
-              ? (privateRepositoryToken ?? null)
-              : null,
-            replaceRepositoryId: existing?.id ?? null,
-          };
-          await dependencies.queue.enqueueCloneAndCount(payload);
-          return response.status(202).json({
-            repository: summarizeRepository(repository),
-            job,
+          const result = await submitRepository(dependencies, {
+            session: { id: found.session.id, kind: 'guest', userId: null },
+            ...parsedBody.data,
           });
+          return sendSubmitRepositoryResult(response, result);
         }
 
-        if (found.session.kind === 'logged_in') {
-          const existing = await dependencies.store.findLoggedInRepositoryByUrl(
-            found.session.userId!,
-            normalized.normalizedUrl,
-          );
-          if (existing && !reindexExistingRepository) {
-            return response.status(409).json({
-              code: 'repository_already_exists',
-              message:
-                'This repository already exists. Reindexing will replace the old index after the new one succeeds.',
-              repository: summarizeRepository(existing),
-            });
-          }
-          if (existing && reindexExistingRepository) {
-            const job = await dependencies.store.createJobForRepository(
-              existing.id,
-            );
-            const payload: CloneAndCountPayload = {
-              repositoryJobId: job.id,
-              repositoryId: existing.id,
-              url: normalized.normalizedUrl,
-              isPrivate,
-              privateRepositoryToken: isPrivate
-                ? (privateRepositoryToken ?? null)
-                : null,
-              replaceRepositoryId: null,
-            };
-            await dependencies.queue.enqueueCloneAndCount(payload);
-            return response.status(202).json({
-              repository: summarizeRepository(existing),
-              job,
-            });
-          }
+        if (!found.session.userId) {
+          return response.status(401).json({ error: 'Session required' });
         }
 
-        const { repository, job } =
-          await dependencies.store.createRepositoryWithJob({
-            sessionId: null,
+        const result = await submitRepository(dependencies, {
+          session: {
+            id: found.session.id,
+            kind: 'logged_in',
             userId: found.session.userId,
-            url: normalized.normalizedUrl,
-            githubOwner: normalized.githubOwner,
-            githubRepo: normalized.githubRepo,
-            isPrivate,
-          });
-
-        const payload: CloneAndCountPayload = {
-          repositoryJobId: job.id,
-          repositoryId: repository.id,
-          url: normalized.normalizedUrl,
-          isPrivate,
-          privateRepositoryToken: isPrivate
-            ? (privateRepositoryToken ?? null)
-            : null,
-          replaceRepositoryId: null,
-        };
-        await dependencies.queue.enqueueCloneAndCount(payload);
-
-        return response.status(202).json({
-          repository: summarizeRepository(repository),
-          job,
+          },
+          ...parsedBody.data,
         });
+        return sendSubmitRepositoryResult(response, result);
       } catch (error) {
         next(error);
       }
     },
   );
+}
+
+type SubmitRepositoryResult = Awaited<ReturnType<typeof submitRepository>>;
+
+function sendSubmitRepositoryResult(
+  response: Response,
+  result: SubmitRepositoryResult,
+) {
+  if (result.status === 'bad_request') {
+    return response.status(400).json({
+      code: result.code,
+      message: result.message,
+    });
+  }
+
+  if (result.status === 'conflict') {
+    return response.status(409).json({
+      code: result.code,
+      message: result.message,
+      repository: summarizeRepository(result.repository),
+    });
+  }
+
+  return response.status(202).json({
+    repository: summarizeRepository(result.repository),
+    job: result.job,
+  });
 }

@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — Submit Public Repository Jobs
 
-**Status:** ready-for-agent
+Status: ready-for-agent
 
 - [ ] Logged-In submission detects an existing Repository with the same normalized Repository URL for the current Logged-In User.
 - [ ] Duplicate Logged-In submission without `reindexExistingRepository` returns a `409` conflict with code `repository_already_exists`.

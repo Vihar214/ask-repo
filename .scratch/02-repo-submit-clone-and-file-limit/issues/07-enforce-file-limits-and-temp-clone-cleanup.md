@@ -4,7 +4,7 @@
 
 **Blocked by:** 06 — Clone And Count Repository Jobs
 
-**Status:** ready-for-agent
+Status: ready-for-agent
 
 - [ ] Guest Repository Jobs enforce the 500-file Repository Limit.
 - [ ] Logged-In Repository Jobs enforce the 10,000-file Repository Limit.

@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 — Persist Repository And Repository Job Records
 
-**Status:** ready-for-agent
+Status: ready-for-agent
 
 - [ ] `POST /repos` rejects requests without a valid Session CSRF Token.
 - [ ] Public Repository submission accepts supported GitHub HTTPS Repository URL forms and stores only the normalized Repository URL.
