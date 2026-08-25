@@ -1,4 +1,5 @@
 from celery import Celery
+
 from ask_repo_worker.config import get_settings
 
 settings = get_settings()

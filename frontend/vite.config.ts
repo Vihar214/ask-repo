@@ -9,6 +9,7 @@ export default defineConfig({
       '/session': 'http://localhost:3000',
       '/auth': 'http://localhost:3000',
       '/account': 'http://localhost:3000',
+      '/repos': 'http://localhost:3000',
     },
   },
   test: {

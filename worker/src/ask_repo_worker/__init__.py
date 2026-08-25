@@ -6,11 +6,11 @@ from ask_repo_worker.queues import smoke_check
 
 __all__ = [
     "WorkerSettings",
-    "get_settings",
     "celery_app",
     "get_engine",
+    "get_settings",
     "metadata",
     "schema_migrations",
-    "smoke_check_payload",
     "smoke_check",
+    "smoke_check_payload",
 ]

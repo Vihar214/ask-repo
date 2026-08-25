@@ -144,8 +144,7 @@ export class PostgresAuthStore implements AuthStore {
     if ('oauthStateExpiresAt' in changes)
       updateValues.oauth_state_expires_at = changes.oauthStateExpiresAt;
     if ('expiresAt' in changes) updateValues.expires_at = changes.expiresAt;
-    if ('lastSeenAt' in changes)
-      updateValues.last_seen_at = changes.lastSeenAt;
+    if ('lastSeenAt' in changes) updateValues.last_seen_at = changes.lastSeenAt;
 
     await this.db
       .updateTable('sessions')

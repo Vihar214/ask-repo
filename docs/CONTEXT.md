@@ -28,11 +28,20 @@ This file defines domain terms used across specs, tickets, docs, tests, and code
 
 **Repository**: A GitHub repository submitted by a user for indexing.
 
+**Repository URL**: The normalized GitHub HTTPS URL used for repository submission, display, duplicate detection, and clone preparation.
+_Avoid_: Submitted URL, raw URL, Canonical Repository URL
+
+**Active Repository**: The Repository currently occupying a Guest Session's single-repository slot.
+_Avoid_: Uploaded repo, current upload
+
 **Private Repository Token**: A GitHub token pasted by the user for one private repository clone/index operation. It is not the same as the user's GitHub OAuth login.
 
 **Temp Clone**: A shallow clone of a submitted repository created in a temporary folder for indexing.
 
 **Repository Index**: The stored searchable representation of a repository after indexing. It includes file records, chunks, embeddings, symbols, references, and skipped file records.
+
+**Repository Job**: A background unit of work that processes one Repository and records progress, failure, or completion status.
+_Avoid_: Import, scan
 
 **Skipped File**: A repository file that is counted toward repository limits but not indexed because it is binary, too large, or inside an ignored/vendor/build path.
 

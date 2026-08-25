@@ -1,6 +1,7 @@
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class WorkerSettings(BaseSettings):
     database_url: str = Field(alias="DATABASE_URL")
     redis_url: str = Field(alias="REDIS_URL")

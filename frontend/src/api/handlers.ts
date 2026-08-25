@@ -9,6 +9,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (
     error: AxiosError<{
+      code?: string;
       error?: string;
       message?: unknown;
       statusCode?: number;
@@ -17,6 +18,7 @@ axiosInstance.interceptors.response.use(
     const message = error.response?.data?.message;
 
     return Promise.reject({
+      code: error.response?.data?.code,
       error: error.response?.data?.error ?? 'Request failed',
       message:
         typeof message === 'string'
