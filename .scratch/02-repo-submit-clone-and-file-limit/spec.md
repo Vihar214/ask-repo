@@ -136,8 +136,8 @@ The User should be able to enter a GitHub Repository URL, have it normalized int
 - `finished_at` is set for terminal job states such as `rejected_file_limit` and `failed`.
 - `ready_for_indexing_at` is set when clone/count succeeds and the Repository is under the applicable file cap.
 - `ready_for_indexing` means clone and file-count checks passed, the Repository is not yet chat-ready, and later indexing orchestration must continue processing.
-- Temp Clone root is hard-coded as `/tmp/ask-repo-clones`.
-- Temp Clone directory naming is `/tmp/ask-repo-clones/<repository_job_id>`.
+- Temp Clone root is hard-coded as `<project-root>/tmp/ask-repo-clones`.
+- Temp Clone directory naming is `<project-root>/tmp/ask-repo-clones/<repository_job_id>`.
 - If the Temp Clone directory already exists for a Repository Job id, the worker marks the job failed with `worker_failed` rather than deleting the directory.
 - If clone fails or the Repository is over the applicable file cap, the worker deletes the Temp Clone when present.
 - If clone/count succeeds and the Repository is under the file cap, the worker keeps the Temp Clone and stores its path on the Repository Job for later indexing orchestration.
@@ -161,7 +161,7 @@ The User should be able to enter a GitHub Repository URL, have it normalized int
 - Worker tests should verify shallow clone command behavior without asserting incidental command construction details beyond the locked clone strategy and token safety.
 - Worker tests should verify `git ls-files` file counting, over-limit rejection, under-limit `ready_for_indexing`, submodule counting as a gitlink entry, and cleanup behavior for failure/rejection.
 - Worker tests should verify clone failure mapping to stable failure codes and sanitized failure messages.
-- Worker tests should verify Temp Clone path creation under `/tmp/ask-repo-clones/<repository_job_id>` and collision handling as `worker_failed`.
+- Worker tests should verify Temp Clone path creation under `<project-root>/tmp/ask-repo-clones/<repository_job_id>` and collision handling as `worker_failed`.
 - Frontend tests should cover Repository URL normalization on blur and submit, visible value replacement, reusable toast display, private Repository toggle behavior, token show/hide control, client-side empty-token validation, and submission payload shape.
 - Frontend tests should verify that public submissions do not send token material.
 - Tests should reuse existing prior art from auth HTTP tests, auth migration tests, frontend shell/session tests, worker smoke tests, and Redis/Celery contract-style testing established in foundation.

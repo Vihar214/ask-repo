@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { AuthService } from '../../auth/index.js';
 import {
   submitRepository,
+  type RepositoryJobRecord,
   type RepositoryRecord,
   type RepositoryRouteDependencies,
 } from '../../repositories/index.js';
@@ -22,6 +23,13 @@ const summarizeRepository = (repository: RepositoryRecord) => ({
   githubRepo: repository.github_repo,
   isPrivate: repository.is_private,
   status: repository.status,
+});
+
+const summarizeRepositoryJob = (job: RepositoryJobRecord) => ({
+  id: job.id,
+  repository_id: job.repository_id,
+  replaces_repository_id: job.replaces_repository_id,
+  status: job.status,
 });
 
 export function registerRepositoryRoutes(
@@ -100,6 +108,6 @@ function sendSubmitRepositoryResult(
 
   return response.status(202).json({
     repository: summarizeRepository(result.repository),
-    job: result.job,
+    job: summarizeRepositoryJob(result.job),
   });
 }

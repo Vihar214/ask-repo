@@ -29,7 +29,7 @@ This feature (`02-repo-submit-clone-and-file-limit`) builds the initial reposito
 3. **Worker Processing (Clone & Count):**
    - The Python worker receives the payload.
    - For private repositories, a temporary credential helper (`GIT_ASKPASS`) is used so the token is not leaked in the clone URL.
-   - Performs a shallow clone (`--depth=1`) into `/tmp/ask-repo-clones/<repository_job_id>`.
+   - Performs a shallow clone (`--depth=1`) into `<project-root>/tmp/ask-repo-clones/<repository_job_id>`.
    - Runs `git ls-files` to count tracked files (submodules are counted as gitlinks in v0).
    
 4. **Limits and Cleanup:**

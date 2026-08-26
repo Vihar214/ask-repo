@@ -22,8 +22,8 @@ export class RedisRepositoryQueue implements RepositoryQueue {
             },
           ]),
         ).toString('base64'),
-        content_encoding: 'utf-8',
-        content_type: 'application/json',
+        'content-encoding': 'utf-8',
+        'content-type': 'application/json',
         headers: {
           lang: 'py',
           task: 'worker.clone_and_count',

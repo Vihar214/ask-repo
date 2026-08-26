@@ -250,6 +250,14 @@ describe('Repository submit HTTP API', () => {
       status: 'queued',
     });
     expect(response.body.job).toMatchObject({ status: 'queued' });
+    expect(Object.keys(response.body.job).sort()).toEqual([
+      'id',
+      'replaces_repository_id',
+      'repository_id',
+      'status',
+    ]);
+    expect(response.body.job).not.toHaveProperty('temp_clone_path');
+    expect(response.body.job).not.toHaveProperty('failure_detail');
     expect(enqueuedJobs).toEqual([
       {
         repositoryJobId: response.body.job.id,

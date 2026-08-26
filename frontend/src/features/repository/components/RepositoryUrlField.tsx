@@ -34,6 +34,11 @@ export function RepositoryUrlField({
     return normalized;
   };
 
+  const clearConsent = () => {
+    setConsentType(null);
+    setError('');
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -161,16 +166,32 @@ export function RepositoryUrlField({
         </p>
       )}
 
-      <button
-        type="submit"
-        className="mt-2 min-h-12 border border-pixel-border bg-pixel-surface-dark px-4 py-3 font-semibold uppercase text-pixel-surface-light transition-colors hover:bg-pixel-text hover:text-white focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-pixel-text"
-      >
-        {consentType === 'repository_already_exists'
-          ? 'Confirm reindex'
-          : consentType === 'active_repository_exists'
-            ? 'Confirm replace'
-            : 'Submit repository'}
-      </button>
+      {consentType ? (
+        <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          <button
+            type="submit"
+            className="min-h-12 border border-pixel-border bg-pixel-surface-dark px-4 py-3 font-semibold uppercase text-pixel-surface-light transition-colors hover:bg-pixel-text hover:text-white focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-pixel-text"
+          >
+            {consentType === 'repository_already_exists'
+              ? 'Confirm reindex'
+              : 'Confirm replace'}
+          </button>
+          <button
+            type="button"
+            className="min-h-12 border border-pixel-border bg-pixel-surface-light px-4 py-3 font-semibold uppercase text-pixel-text transition-colors hover:bg-white focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-pixel-text"
+            onClick={clearConsent}
+          >
+            Cancel
+          </button>
+        </div>
+      ) : (
+        <button
+          type="submit"
+          className="mt-2 min-h-12 border border-pixel-border bg-pixel-surface-dark px-4 py-3 font-semibold uppercase text-pixel-surface-light transition-colors hover:bg-pixel-text hover:text-white focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-pixel-text"
+        >
+          Submit repository
+        </button>
+      )}
     </form>
   );
 }

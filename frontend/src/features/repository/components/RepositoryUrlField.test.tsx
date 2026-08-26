@@ -140,6 +140,7 @@ describe('RepositoryUrlField', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       /delete your current guest repository/i,
     );
+    expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Confirm replace/i }));
 
     await waitFor(() => {
@@ -168,11 +169,43 @@ describe('RepositoryUrlField', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       /reindexing will replace the old index/i,
     );
+    expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Confirm reindex/i }));
 
     await waitFor(() => {
       expect(submitRepository).toHaveBeenLastCalledWith(
         expect.objectContaining({ reindexExistingRepository: true }),
+      );
+    });
+  });
+
+  it('cancels duplicate Repository consent without sending a reindex flag', async () => {
+    const error = new Error(
+      'This repository already exists. Reindexing will replace the old index after the new one succeeds.',
+    ) as Error & { code: string };
+    error.code = 'repository_already_exists';
+    const submitRepository = vi
+      .fn()
+      .mockRejectedValueOnce(error)
+      .mockResolvedValueOnce(undefined);
+    renderRepositoryUrlField({ csrfToken: 'csrf', submitRepository });
+
+    fireEvent.change(screen.getByLabelText(/GitHub repository URL/i), {
+      target: { value: 'https://github.com/openai/foo' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Submit repository/i }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /reindexing will replace the old index/i,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Cancel/i }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Submit repository/i }));
+
+    await waitFor(() => {
+      expect(submitRepository).toHaveBeenLastCalledWith(
+        expect.objectContaining({ reindexExistingRepository: false }),
       );
     });
   });

@@ -16,7 +16,8 @@ from ask_repo_worker.repository_jobs import (
     clone_and_count_repository,
 )
 
-TEMP_CLONE_ROOT = Path("/tmp/ask-repo-clones")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+TEMP_CLONE_ROOT = PROJECT_ROOT / "tmp" / "ask-repo-clones"
 
 
 @pytest.fixture(autouse=True)
@@ -232,11 +233,11 @@ def test_clone_and_count_sanitizes_clone_failures_and_removes_partial_clone(tmp_
 def test_sanitize_failure_detail_removes_tokens_and_temp_clone_paths():
     detail = (
         "fatal: token ghp_secret_token failed in "
-        "/tmp/ask-repo-clones/job-clone-failure/.git"
+        f"{TEMP_CLONE_ROOT}/job-clone-failure/.git"
     )
 
     sanitized = _sanitize_failure_detail(detail, "ghp_secret_token")
 
     assert "ghp_secret_token" not in sanitized
-    assert "/tmp/ask-repo-clones/job-clone-failure" not in sanitized
+    assert str(TEMP_CLONE_ROOT / "job-clone-failure") not in sanitized
     assert "[temp clone path redacted]" in sanitized

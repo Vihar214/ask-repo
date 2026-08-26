@@ -11,8 +11,11 @@ from sqlalchemy import delete, select, update
 from ask_repo_worker.db.engine import get_engine
 from ask_repo_worker.db.tables import repositories, repository_jobs
 
-TEMP_CLONE_ROOT = Path("/tmp/ask-repo-clones")
-TEMP_CLONE_PATH_PATTERN = re.compile(r"/tmp/ask-repo-clones/[^\s'\"`]+")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+TEMP_CLONE_ROOT = PROJECT_ROOT / "tmp" / "ask-repo-clones"
+TEMP_CLONE_PATH_PATTERN = re.compile(
+    r"(/tmp|[^\s'\"`]+/ask-repo/tmp)/ask-repo-clones/[^\s'\"`]+"
+)
 GUEST_FILE_LIMIT = 500
 LOGGED_IN_FILE_LIMIT = 10000
 
