@@ -8,10 +8,14 @@ import {
   AuthRouteDependencies,
   registerAuthRoutes,
 } from './http/index.js';
+import { AuthService } from './auth/index.js';
+import { registerRepositoryRoutes } from './http/routes/repositories.routes.js';
+import type { RepositoryRouteDependencies } from './repositories/index.js';
 
 export interface AppDependencies {
   healthChecks?: HealthChecks;
   auth?: AuthRouteDependencies;
+  repositories?: RepositoryRouteDependencies;
 }
 
 export function createApp(
@@ -24,6 +28,13 @@ export function createApp(
 
   registerHealthRoutes(app, config, dependencies.healthChecks);
   if (dependencies.auth) registerAuthRoutes(app, config, dependencies.auth);
+  if (dependencies.repositories && dependencies.auth) {
+    registerRepositoryRoutes(
+      app,
+      dependencies.repositories,
+      new AuthService(config, dependencies.auth),
+    );
+  }
 
   return app;
 }

@@ -4,7 +4,10 @@ import {
   type SessionAction,
   type SessionFetcher,
 } from '../features/session';
-import { RepositoryUrlField } from '../components';
+import {
+  RepositoryUrlField,
+  useCreateRepository,
+} from '../features/repository';
 
 export function HomePage({
   getSession,
@@ -14,6 +17,7 @@ export function HomePage({
   mutateSession?: SessionAction;
 }) {
   const { state, status, runAction } = useSession(getSession, mutateSession);
+  const createRepository = useCreateRepository();
   const loggedIn = status === 'ready' && state?.session.kind === 'logged_in';
 
   return (
@@ -46,7 +50,10 @@ export function HomePage({
           </p>
         )}
         <div className="mt-6">
-          <RepositoryUrlField />
+          <RepositoryUrlField
+            csrfToken={state?.session.csrfToken || ''}
+            submitRepository={createRepository.mutateAsync}
+          />
         </div>
       </section>
     </div>

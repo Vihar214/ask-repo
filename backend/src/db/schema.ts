@@ -26,4 +26,52 @@ export interface DatabaseSchema {
     created_at: Date;
     updated_at: Date;
   };
+  repositories: {
+    id: string;
+    session_id: string | null;
+    user_id: string | null;
+    url: string;
+    github_owner: string;
+    github_repo: string;
+    is_private: boolean;
+    active_repository: boolean;
+    status:
+      | 'queued'
+      | 'processing'
+      | 'ready_for_indexing'
+      | 'rejected_file_limit'
+      | 'failed';
+    created_at: Date;
+    updated_at: Date;
+  };
+  repository_jobs: {
+    id: string;
+    repository_id: string;
+    replaces_repository_id: string | null;
+    status:
+      | 'queued'
+      | 'cloning'
+      | 'counting_files'
+      | 'ready_for_indexing'
+      | 'rejected_file_limit'
+      | 'failed';
+    file_count: number | null;
+    file_limit: number | null;
+    failure_code: string | null;
+    failure_message: string | null;
+    failure_detail: string | null;
+    temp_clone_path: string | null;
+    previous_repository_status:
+      | 'queued'
+      | 'processing'
+      | 'ready_for_indexing'
+      | 'rejected_file_limit'
+      | 'failed'
+      | null;
+    started_at: Date | null;
+    ready_for_indexing_at: Date | null;
+    finished_at: Date | null;
+    created_at: Date;
+    updated_at: Date;
+  };
 }
